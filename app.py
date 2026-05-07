@@ -134,7 +134,6 @@ st.markdown("""
 
     /* footer card spans both grid columns visually */
     .solar-stat.footer { border-left-color: #475569; }
-
     /* tighten matplotlib charts inside Streamlit so they don't dominate */
     .stPlotly, .stPyplot { max-width: 100%; }
 </style>
@@ -231,7 +230,7 @@ def main():
     st.markdown("<h1>SolarScope ☀️</h1>", unsafe_allow_html=True)
     st.markdown(
         '<div class="subhead">Address-to-kWh solar analysis using satellite imagery, '
-        'MobileSAM, NASA POWER, and NREL PVWatts.</div>',
+        'MobileSAM, NASA POWER, and pvlib.</div>',
         unsafe_allow_html=True,
     )
 
@@ -284,8 +283,8 @@ def main():
             st.markdown("##### Settings")
             zoom_in = st.slider(
                 "Image zoom level",
-                min_value=15, max_value=21, value=21,
-                help="Higher = more detail. Zoom 21 is required for accurate single-building segmentation.",
+                min_value=18, max_value=23, value=21,
+                help="Higher = more detail. Zoom 21 is the practical sweet spot; 22-23 may fail for some locations as Google Static Maps doesn't always serve imagery that close.",
                 key="zoom_slider",
             )
             st.write("")  # vertical spacer
@@ -465,41 +464,46 @@ def main():
             best_month = monthly.idxmax()
             worst_month = monthly.idxmin()
 
-            # ---- 3 rows × 2 columns of homeowner-relatable cards ---------
-            grid_l, grid_r = st.columns(2)
-            with grid_l:
+            # ---- Row 1: Money ---------------------------------------------
+            row1_l, row1_r = st.columns(2)
+            with row1_l:
                 st.markdown(f"""
 <div class="solar-stat money">
     <div class="label">Annual savings</div>
     <div class="value">{fin['annual_savings_formatted']}</div>
-    <div class="sub">on your electricity bill, every year</div>
 </div>""", unsafe_allow_html=True)
-                st.markdown(f"""
-<div class="solar-stat energy">
-    <div class="label">Rooftop area</div>
-    <div class="value">{seg['area_sqft']:,.0f}<span class="unit">sq ft</span></div>
-    <div class="sub">{result['shading']['usable_area_sqft']:,.0f} sq ft usable after obstacles &amp; shade</div>
-</div>""", unsafe_allow_html=True)
-                st.markdown(f"""
-<div class="solar-stat lifetime">
-    <div class="label">Lifetime savings (20 yrs)</div>
-    <div class="value">{fin['lifetime_savings_formatted']}</div>
-    <div class="sub">total bill reduction over panel life</div>
-</div>""", unsafe_allow_html=True)
-
-            with grid_r:
+            with row1_r:
                 st.markdown(f"""
 <div class="solar-stat money">
     <div class="label">Payback period</div>
     <div class="value">{fin['payback_years']:.1f}<span class="unit">years</span></div>
-    <div class="sub">when the system pays for itself</div>
 </div>""", unsafe_allow_html=True)
+
+            # ---- Row 2: Rooftop areas (side by side) ----------------------
+            row2_l, row2_r = st.columns(2)
+            with row2_l:
+                st.markdown(f"""
+<div class="solar-stat energy">
+    <div class="label">Total rooftop area</div>
+    <div class="value">{seg['area_sqft']:,.0f}<span class="unit">sq ft</span></div>
+</div>""", unsafe_allow_html=True)
+            with row2_r:
+                st.markdown(f"""
+<div class="solar-stat lifetime">
+    <div class="label">Usable rooftop space</div>
+    <div class="value">{result['shading']['usable_area_sqft']:,.0f}<span class="unit">sq ft</span></div>
+</div>""", unsafe_allow_html=True)
+
+            # ---- Row 3: Use-case (subtitles kept) -------------------------
+            row3_l, row3_r = st.columns(2)
+            with row3_l:
                 st.markdown(f"""
 <div class="solar-stat energy">
     <div class="label">Daily average</div>
     <div class="value">{daily_avg_kwh:.1f}<span class="unit">kWh / day</span></div>
     <div class="sub">runs a 1.5 ton AC for ~{daily_avg_kwh/1.5:.0f} hrs daily</div>
 </div>""", unsafe_allow_html=True)
+            with row3_r:
                 st.markdown(f"""
 <div class="solar-stat lifetime">
     <div class="label">Effective electricity cost</div>
@@ -507,21 +511,19 @@ def main():
     <div class="sub">vs grid ₹{fin['electricity_rate']}/kWh — {grid_savings_multiple:.1f}× cheaper</div>
 </div>""", unsafe_allow_html=True)
 
-            # ---- seasonal callout (2 small inline cards) -----------------
-            sc_l, sc_r = st.columns(2)
-            with sc_l:
+            # ---- Row 4: Seasonal -----------------------------------------
+            row4_l, row4_r = st.columns(2)
+            with row4_l:
                 st.markdown(f"""
 <div class="solar-stat energy">
     <div class="label">Best month</div>
     <div class="value">{best_month}<span class="unit">{monthly[best_month]:,.0f} kWh</span></div>
-    <div class="sub">peak generation — long sunny days</div>
 </div>""", unsafe_allow_html=True)
-            with sc_r:
+            with row4_r:
                 st.markdown(f"""
 <div class="solar-stat energy">
     <div class="label">Slowest month</div>
     <div class="value">{worst_month}<span class="unit">{monthly[worst_month]:,.0f} kWh</span></div>
-    <div class="sub">monsoon cloud cover reduces output</div>
 </div>""", unsafe_allow_html=True)
 
             # Footer — full-width cost card
@@ -709,11 +711,12 @@ def main():
             st.markdown(
                 "**The customer's view: what it costs, what you save, when it pays off.**"
             )
-            st.pyplot(charts.chart_cumulative_savings(fin),
+            st.pyplot(charts.chart_money_flow_waterfall(fin),
                       use_container_width=True)
-            st.caption("Net cumulative ₹ over time. Curves upward as electricity "
-                       "tariffs rise and panel degradation slowly trims output. "
-                       "Crosses zero at the payback year.")
+            st.caption("Each bar is one year. Year 0 is the system cost "
+                       "(below zero). Amber bars are years where you're still "
+                       "paying yourself back; green bars are pure profit. The "
+                       "blue line tracks your running net position.")
 
             st.pyplot(charts.chart_cost_breakdown(fin),
                       use_container_width=True)
