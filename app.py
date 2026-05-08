@@ -576,12 +576,11 @@ def main():
         # ---- deep-dive tabs ------------------------------------------------
         st.markdown("---")
         st.markdown("### 📊 Deep-dive analytics")
-        tab_gen, tab_geom, tab_loss, tab_finance, tab_meta = st.tabs([
+        tab_gen, tab_geom, tab_loss, tab_finance = st.tabs([
             "Generation patterns",
             "Solar geometry",
             "Loss attribution",
             "Financial story",
-            "Methodology & data",
         ])
 
         # ---- Tab 1: Generation patterns ----
@@ -720,34 +719,6 @@ def main():
                       use_container_width=True)
             st.caption("System cost split between ur money and government "
                        "subsidy (MNRE 2024: 40% on first 3 kW, 20% above).")
-
-        # ---- Tab 5: Methodology & data ----
-        with tab_meta:
-            st.markdown("##### Pipeline summary")
-            st.markdown("""
-- **Segmentation**: MobileSAM (Meta) with auto-picked prompt; pixel-accurate roof mask
-- **Area math**: pixel count × Web Mercator m/pixel² (cosine-corrected for latitude)
-- **Shading**: pvlib NREL solar position + obstacle ray-casting binned by azimuth
-- **Layout**: 2D bin-packing with 0.5 m setback, dual-orientation, multi-offset search
-- **Generation**: NREL PVWatts v5 via pvlib over 8760 hourly NASA POWER samples
-- **Financials**: Indian-market subsidies (MNRE 2024); 25-year horizon
-            """.strip())
-
-            st.markdown("##### Financial inputs")
-            st.write(f"**System cost** (pre-subsidy): "
-                     f"{config.format_currency(fin['system_cost_pre_subsidy_inr'])}")
-            st.write(f"**System cost** (after subsidy): {fin['system_cost_formatted']}")
-            st.write(f"**Annual savings**: {fin['annual_savings_formatted']} "
-                     f"@ ₹{fin['electricity_rate']}/kWh")
-            st.write(f"**Payback period**: {fin['payback_years']} years")
-            st.write(f"**25-year savings (linear)**: {fin['lifetime_savings_formatted']}")
-            st.write(f"**ROI**: {fin['roi_pct']}% over {fin['system_lifetime_years']} years")
-
-            st.markdown("##### Weather data source")
-            ws = result["weather_summary"]
-            st.write(f"**Source**: NASA POWER hourly satellite reanalysis ({ws['year']})")
-            st.write(f"**Hours simulated**: {ws['n_hours']:,}")
-            st.write(f"**Annual GHI**: {ws['annual_ghi_kwh_m2']:,.0f} kWh/m²")
 
 
 if __name__ == "__main__":
