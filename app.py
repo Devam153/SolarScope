@@ -1,5 +1,5 @@
 """
-SolarScope — full-pipeline Streamlit UI.
+SolarScope - full-pipeline Streamlit UI.
 
 Wires together the CV/physics pipeline:
     address -> satellite -> auto-prompt -> SAM segment ->
@@ -22,7 +22,7 @@ try:
 except Exception:
     pass
 
-# Load .env BEFORE any project imports — utils.config reads env vars at
+# Load .env BEFORE any project imports - utils.config reads env vars at
 # module import time, so dotenv must populate them first.
 from dotenv import load_dotenv
 load_dotenv()
@@ -32,7 +32,7 @@ os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 try:
     import torch  # noqa: F401
     # Streamlit's module-reloader walks `torch.classes.__path__._path`,
-    # which torch's custom __getattr__ doesn't support — it spams a noisy
+    # which torch's custom __getattr__ doesn't support - it spams a noisy
     # RuntimeError on every rerun. Override with an empty list to silence.
     torch.classes.__path__ = []
 except Exception:
@@ -126,10 +126,10 @@ st.markdown("""
     /* money cards */
     .solar-stat.money { border-left-color: #16a34a; }
 
-    /* impact cards (CO2, daily average) — teal */
+    /* impact cards (CO2, daily average) - teal */
     .solar-stat.impact { border-left-color: #0891b2; }
 
-    /* lifetime cards (long-term metrics) — violet */
+    /* lifetime cards (long-term metrics) - violet */
     .solar-stat.lifetime { border-left-color: #7c3aed; }
 
     /* footer card spans both grid columns visually */
@@ -206,7 +206,7 @@ def _annotated_satellite(image_bytes: bytes, prompt_point: tuple[int, int]) -> I
 # ---- caching ---------------------------------------------------------------
 @st.cache_data(show_spinner=False, ttl=3600)
 def _cached_fetch_image(address, lat, lng, zoom, scale):
-    """Fetch the satellite image only — no segmentation. Cheap; cached."""
+    """Fetch the satellite image only - no segmentation. Cheap; cached."""
     from utils.image_fetch import fetch_satellite_image_complete
     return fetch_satellite_image_complete(
         address=address, lat=lat, lng=lng, zoom=zoom, scale=scale,
@@ -229,8 +229,8 @@ def _cached_run(address, lat, lng, zoom, scale, prompt_point):
 def main():
     st.markdown("<h1>SolarScope ☀️</h1>", unsafe_allow_html=True)
     st.markdown(
-        '<div class="subhead">Address-to-kWh solar analysis using satellite imagery, '
-        'MobileSAM, NASA POWER, and pvlib.</div>',
+        '<div class="subhead">See how much solar energy your rooftop can produce — '
+        'just from your address.</div>',
         unsafe_allow_html=True,
     )
 
@@ -284,7 +284,7 @@ def main():
             zoom_in = st.slider(
                 "Image zoom level",
                 min_value=18, max_value=23, value=21,
-                help="Higher = more detail. Zoom 21 is the practical sweet spot; 22-23 may fail for some locations as Google Static Maps doesn't always serve imagery that close.",
+                help="Higher = more detail. Zoom 21 is the practical sweet spot.",
                 key="zoom_slider",
             )
             st.write("")  # vertical spacer
@@ -294,7 +294,7 @@ def main():
                 use_container_width=True,
             )
 
-    # Trigger analysis on button click — clear any prior manual prompt
+    # Trigger analysis on button click - clear any prior manual prompt
     if run_btn:
         if input_method == "Address":
             st.session_state.address = address_in
@@ -391,7 +391,7 @@ def main():
     col_img, col_metrics = st.columns([1.2, 1])
 
     with col_img:
-        st.markdown("**Satellite view** — *click anywhere on the rooftop to redo segmentation at that point*")
+        st.markdown("**Satellite view** - *click anywhere on the rooftop to redo segmentation at that point*")
         sat_img = _annotated_satellite(image_bytes, result["prompt_point"])
         click = streamlit_image_coordinates(
             sat_img,
@@ -431,11 +431,11 @@ def main():
         fin = result.get("financial")
 
         if pv is None or fin is None:
-            st.warning("⚠️ No usable area found at this prompt point — either no "
+            st.warning("⚠️ No usable area found at this prompt point - either no "
                        "panels fit or the rooftop is too shaded. Click somewhere "
                        "else on the rooftop to retry.")
         else:
-            # Hero card — annual energy is the headline number a customer cares about
+            # Hero card - annual energy is the headline number a customer cares about
             st.markdown(f"""
 <div class="solar-stat hero">
     <div class="label">Annual generation</div>
@@ -459,7 +459,7 @@ def main():
                 if effective_cost_per_kwh > 0 else 0
             )
 
-            # Best/worst month — for the seasonal-dip talking point
+            # Best/worst month - for the seasonal-dip talking point
             monthly = pv["monthly_kwh"]
             best_month = monthly.idxmax()
             worst_month = monthly.idxmin()
@@ -508,7 +508,7 @@ def main():
 <div class="solar-stat lifetime">
     <div class="label">Effective electricity cost</div>
     <div class="value">₹{effective_cost_per_kwh:.2f}<span class="unit">/ kWh</span></div>
-    <div class="sub">vs grid ₹{fin['electricity_rate']}/kWh — {grid_savings_multiple:.1f}× cheaper</div>
+    <div class="sub">vs grid ₹{fin['electricity_rate']}/kWh - {grid_savings_multiple:.1f}× cheaper</div>
 </div>""", unsafe_allow_html=True)
 
             # ---- Row 4: Seasonal -----------------------------------------
@@ -526,7 +526,7 @@ def main():
     <div class="value">{worst_month}<span class="unit">{monthly[worst_month]:,.0f} kWh</span></div>
 </div>""", unsafe_allow_html=True)
 
-            # Footer — full-width cost card
+            # Footer - full-width cost card
             st.markdown(f"""
 <div class="solar-stat footer">
     <div class="label">System cost (after MNRE subsidy)</div>
@@ -543,19 +543,19 @@ def main():
         with v1:
             st.image(
                 overlays["roof_overlay"],
-                caption=f"Roof (green) + obstacles (red) — {seg['area_sqft']:,.0f} sq ft",
+                caption=f"Roof (green) + obstacles (red) - {seg['area_sqft']:,.0f} sq ft",
                 use_container_width=True,
             )
         with v2:
             st.image(
                 overlays["usable_overlay"],
-                caption=f"Usable area — avg shade {result['shading']['avg_shade_pct']:.1f}%",
+                caption=f"Usable area - avg shade {result['shading']['avg_shade_pct']:.1f}%",
                 use_container_width=True,
             )
         with v3:
             st.image(
                 overlays["layout_overlay"],
-                caption=f"Panel layout — {layout['panel_count']} panels, "
+                caption=f"Panel layout - {layout['panel_count']} panels, "
                         f"{layout['orientation']}",
                 use_container_width=True,
             )
@@ -563,7 +563,10 @@ def main():
         # ---- monthly generation curve --------------------------------------
         st.markdown("### Monthly generation")
         monthly = pv["monthly_kwh"]
-        st.bar_chart(monthly, height=260)
+        # Rename the series + give the index a label so Streamlit's tooltip
+        # shows "Month: Feb, kWh: 899" instead of "0   899   index Feb".
+        monthly_for_chart = monthly.rename("kWh per month").rename_axis("Month")
+        st.bar_chart(monthly_for_chart, height=260, color="#2563eb")
         st.caption(
             f"Specific yield: {pv['specific_yield']:,.0f} kWh/kWp/year   •   "
             f"Capacity factor: {pv['capacity_factor_pct']:.1f}%   •   "
@@ -604,7 +607,7 @@ def main():
                 st.pyplot(charts.chart_peak_sun_hours(result["weather"]),
                           use_container_width=True)
                 st.caption("Daily peak-sun-hours (effective full-sun hours). Industry's "
-                           "favorite shorthand — how usable each month's sky is.")
+                           "favorite shorthand - how usable each month's sky is.")
 
         # ---- Tab 2: Solar geometry ----
         with tab_geom:
@@ -630,7 +633,7 @@ def main():
                     ),
                     use_container_width=True,
                 )
-                st.caption("Annual shade fraction per roof pixel — green = sunny, red = "
+                st.caption("Annual shade fraction per roof pixel - green = sunny, red = "
                            "heavily shaded.")
 
         # ---- Tab 3: Loss attribution ----
@@ -696,7 +699,7 @@ def main():
             st.caption("Three loss buckets combine multiplicatively: "
                        "(1−stack)·(1−temp)·(1−inverter) = (1−total).")
 
-            with st.expander("📋 Named loss stack — individual factors (PVWatts v5)"):
+            with st.expander("📋 Named loss stack - individual factors (PVWatts v5)"):
                 losses = pv["loss_breakdown"]
                 df_losses = pd.DataFrame(
                     [{"loss factor": k.replace("_", " "), "%": v}
