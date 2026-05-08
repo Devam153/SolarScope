@@ -98,7 +98,7 @@ def chart_cumulative_generation(monthly_kwh: pd.Series) -> plt.Figure:
     monsoon_idx = [i for i, m in enumerate(MONTH_LABELS[:len(cum)]) if m in ("Jul", "Aug")]
     if monsoon_idx:
         i = monsoon_idx[0]
-        ax.annotate("monsoon\nslowdown",
+        ax.annotate("monsoon",
                     xy=(MONTH_LABELS[i], cum.values[i]),
                     xytext=(MONTH_LABELS[i], cum.values[i] * 1.20),
                     color=COLOR_DANGER, fontsize=9, ha="center",

@@ -588,8 +588,6 @@ def main():
         with tab_gen:
             st.markdown(
                 "**How energy flows through your day, season, and year.** "
-                "Useful for sizing batteries, planning electricity use, and "
-                "spotting the monsoon dip."
             )
             cg1, cg2 = st.columns(2)
             with cg1:
@@ -601,19 +599,17 @@ def main():
                 st.pyplot(charts.chart_cumulative_generation(monthly),
                           use_container_width=True)
                 st.caption("Running total of kWh through the year. The slope flattens "
-                           "during monsoon (June–September).")
+                           "during monsoon.")
 
             if result.get("weather") is not None:
                 st.pyplot(charts.chart_peak_sun_hours(result["weather"]),
                           use_container_width=True)
-                st.caption("Daily peak-sun-hours (effective full-sun hours). Industry's "
-                           "favorite shorthand - how usable each month's sky is.")
+                st.caption("Daily peak-sun-hours, how usable each month's sky is.")
 
         # ---- Tab 2: Solar geometry ----
         with tab_geom:
             st.markdown(
                 "**Where the sun is and where shadows fall on your roof.** "
-                "These are the diagrams a solar engineer would put in a site survey."
             )
             cg1, cg2 = st.columns([1, 1])
             coords = result["sat_result"]["coordinates"]
@@ -640,7 +636,7 @@ def main():
         with tab_loss:
             st.markdown(
                 "**Where every kWh goes between sunlight and your meter.** "
-                "Defends the methodology to anyone asking 'why isn't your number 100%?'"
+                "'tells why isn't this number 100%?'"
             )
             if result.get("weather") is not None:
                 st.pyplot(
@@ -718,12 +714,11 @@ def main():
                       use_container_width=True)
             st.caption("Each bar is one year. Year 0 is the system cost "
                        "(below zero). Amber bars are years where you're still "
-                       "paying yourself back; green bars are pure profit. The "
-                       "blue line tracks your running net position.")
+                       "paying yourself back; green bars are pure profit.")
 
             st.pyplot(charts.chart_cost_breakdown(fin),
                       use_container_width=True)
-            st.caption("System cost split between out-of-pocket and government "
+            st.caption("System cost split between ur money and government "
                        "subsidy (MNRE 2024: 40% on first 3 kW, 20% above).")
 
         # ---- Tab 5: Methodology & data ----
