@@ -229,7 +229,7 @@ def _cached_run(address, lat, lng, zoom, scale, prompt_point):
 def main():
     st.markdown("<h1>SolarScope ☀️</h1>", unsafe_allow_html=True)
     st.markdown(
-        '<div class="subhead">See how much solar energy your rooftop can produce — '
+        '<div class="subhead">See how much solar energy your rooftop can produce - '
         'just from your address.</div>',
         unsafe_allow_html=True,
     )
