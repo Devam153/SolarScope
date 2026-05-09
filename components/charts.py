@@ -299,9 +299,7 @@ def chart_money_flow_waterfall(
 
     ax.set_xticks(range(0, len(deltas), 2))
     _style_axes(ax,
-                title=f"Money flow — pay down cost, then profit accumulates "
-                      f"(–{degradation*100:.1f}%/yr panel degradation, "
-                      f"today's tariff held)",
+                title=f"Money flow — pay down cost, then profit accumulates ",
                 ylabel="Net position (₹)",
                 xlabel="Year",
                 title_pad=30)
