@@ -563,10 +563,28 @@ def main():
         # ---- monthly generation curve --------------------------------------
         st.markdown("### Monthly generation")
         monthly = pv["monthly_kwh"]
-        # Rename the series + give the index a label so Streamlit's tooltip
-        # shows "Month: Feb, kWh: 899" instead of "0   899   index Feb".
-        monthly_for_chart = monthly.rename("kWh per month").rename_axis("Month")
-        st.bar_chart(monthly_for_chart, height=260, color="#2563eb")
+        # Streamlit's bar_chart sorts string axes alphabetically
+        # so we use altair_chart with an explicit sort= to keep
+        # the months in chronological order Jan → Dec.
+        import altair as alt
+        month_order = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        monthly_df = pd.DataFrame({
+            "Month": month_order,
+            "kWh per month": [float(monthly.get(m, 0)) for m in month_order],
+        })
+        chart = (
+            alt.Chart(monthly_df)
+            .mark_bar(color="#2563eb")
+            .encode(
+                x=alt.X("Month:N", sort=month_order,
+                        axis=alt.Axis(labelAngle=0, title=None)),
+                y=alt.Y("kWh per month:Q", title="kWh per month"),
+                tooltip=["Month", alt.Tooltip("kWh per month:Q", format=",.0f")],
+            )
+            .properties(height=260)
+        )
+        st.altair_chart(chart, use_container_width=True)
         st.caption(
             f"Specific yield: {pv['specific_yield']:,.0f} kWh/kWp/year   •   "
             f"Capacity factor: {pv['capacity_factor_pct']:.1f}%   •   "
