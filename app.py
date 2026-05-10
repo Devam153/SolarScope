@@ -653,7 +653,7 @@ def main():
         with tab_loss:
             st.markdown(
                 "**Where every kWh goes between sunlight and your meter.** "
-                "'tells why isn't this number 100%?'"
+                "Tells why isn't this number 100%?"
             )
             if result.get("weather") is not None:
                 st.pyplot(
