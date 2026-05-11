@@ -2,7 +2,6 @@ requests
 python-dotenv
 streamlit
 streamlit-image-coordinates
-google-generativeai
 opencv-python-headless
 Pillow
 numpy
